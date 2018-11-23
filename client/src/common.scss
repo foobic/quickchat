@@ -1,0 +1,25 @@
+@font-face {
+  font-family: tomatoes;
+  src: url('./assets/TOMATOESPersonalUse.ttf');
+}
+@font-face {
+  font-family: neucha;
+  src: url('./assets/neucha.otf');
+}
+
+body{
+  font-family: neucha;
+  font-size: 2em;
+}
+
+
+
+
+// colors
+$mainColor: #007bffd9;
+
+// classes
+.noFocus:focus, .noFocus:active{
+  outline: none !important;
+  box-shadow: none !important;
+}
