@@ -110,6 +110,7 @@ export default {
     },
     connect(){
       this.socket = SocketCreator(`ws://${this.$store.state.serverUrl}/${this.newRoomName}`)
+      this.socket.$on('message', this.handleMessage)
     },
     createRoom () {
       this.$http.post(`http://${this.$store.state.serverUrl}/create`,
