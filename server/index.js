@@ -46,6 +46,13 @@ const server = http.createServer((req, res) => {
       rooms[roomName] = wss;
       res.end(`'${roomName}' room successfully created.`);
     });
+  } else   if (req.method === 'GET' && urlParsed.pathname === '/rooms') {
+    const result =  [];
+    for (const el in rooms) {
+      result.push(el);
+    }
+    res.end(JSON.stringify(result));
+
   }
 });
 
@@ -53,11 +60,9 @@ const server = http.createServer((req, res) => {
 server.on('upgrade', (request, socket, head) => {
 
   const pathname = url.parse(request.url).pathname;
-  console.log('rooms', rooms)
   if (rooms.hasOwnProperty(pathname)) {
     // console.log(pathname + ' in socket list');
     rooms[pathname].handleUpgrade(request, socket, head, (ws) => {
-      console.log();
       rooms[pathname].emit('connection', ws, request);
     });
   } else {

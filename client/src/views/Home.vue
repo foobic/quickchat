@@ -1,80 +1,73 @@
 <template>
   <div id="home">
-    <div class="container">
-      <!--<router-link tag="li" to="about">-->
-        <!--<a>about</a>-->
-      <!--</router-link>-->
+    <div class="container"  v-if="!connected">
+    <!--<div class="container" >-->
       <div class="logo d-flex justify-content-center mt-4">
         <span>QuickChat</span>
       </div>
       <div class="form-group d-flex justify-content-center ">
-        <input type="text" v-model="msg">
-        <button @click="connect">Connect</button>
+        <button @click="connect" v-if="!connected">Connect</button>
         <div class="input-group mb-3">
-          <input v-model="newRoomName"
+          <input v-model="roomName"
                  class="form-control form-control-lg createInput noFocus"
                  placeholder="Find or Create room" type="text" aria-label="Recipient's username" aria-describedby="basic-addon2">
-          <!--<input type="text" class="form-control" placeholder="Recipient's username" aria-label="Recipient's username" aria-describedby="basic-addon2">-->
           <div class="input-group-append">
             <button class="btn btn-primary btn-lg noFocus createBtn" @click="createRoom">Create</button>
-            <!--<button class="btn btn-outline-secondary" type="button">Button</button>-->
           </div>
         </div>
       </div>
       <div class="result">
-        <span>Nothing found.</span>
+        <div v-if="rooms.length === 0"><span>Nothing found.</span></div>
+        <div v-for="(room, index) in rooms" :key="index"><a href="" @click.prevent="connect(room)">{{room}}</a></div>
+        <!--<div><span>Nothing found.</span></div>-->
       </div>
       <div class="newRoom form-group">
       </div>
-      <ul>
-        <li v-for="(msg, index) in messages" :key="index">{{msg}}</li>
-      </ul>
-      <!--{{receiveMessage}}}-->
-      <!--<div>{{receive()}}</div>-->
-      <button @click="send">Lol</button>
+    </div>
+    <div v-if="connected">
+      <room></room>
     </div>
   </div>
 </template>
 
 <script>
-import SocketCreator from '../socket'
+import Room from '../components/Room'
+
 export default {
   name: 'Home',
+  components: {
+    'room': Room
+  },
   data () {
     return {
-      newRoomName: '123',
-      socket: null,
-      msg: '',
-      messages: []
+      connected: false,
+      roomName: '123',
     }
   },
+  computed: {
+    rooms () {
+      return this.$store.getters.rooms
+    }
+  },
+  created () {
+    this.getRooms()
+    setInterval(() => {
+      this.getRooms()
+    }, 1000)
+  },
   methods: {
-    send () {
-      this.socket.send(`${this.newRoomName}: ${this.msg}`)
-      this.messages.push(`${this.newRoomName}: ${this.msg}`)
-      // console.log(this.socket);
+    getRooms () {
+      this.$store.dispatch('getRooms')
     },
-    handleMessage (event) {
-      console.log(event)
-      this.messages.push(event)
-    },
-    connect () {
-      this.socket = SocketCreator(`ws://${this.$store.state.serverUrl}/${this.newRoomName}`)
-      this.socket.$on('message', this.handleMessage)
+    connect (roomName) {
+      this.connected = true
+      this.$store.dispatch('connect', roomName)
     },
     createRoom () {
-      this.$http.post(`http://${this.$store.state.serverUrl}/create`,
-        JSON.stringify({ 'name': this.newRoomName }),
-        { headers: { 'content-type': 'application/x-www-form-urlencoded' } }).then(response => {
-        // this.socket = new WebSocket(`ws://${this.$store.state.serverUrl}/${this.newRoomName}`)
-        // this.socket.onmessage = (event) => console.log(event.data)
-        console.log(response)
-        this.socket = SocketCreator(`ws://${this.$store.state.serverUrl}/${this.newRoomName}`)
-        this.socket.$on('message', this.handleMessage)
-        console.log(this.socket)
-      }).catch(e => {
-        // error callback
-      })
+      this.connected = true
+      this.$store.dispatch('createRoom', this.roomName)
+      this.$store.dispatch('connect', this.roomName)
+      this.getRooms()
     }
   }
 }
