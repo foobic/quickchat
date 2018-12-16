@@ -9,6 +9,11 @@ import store from './store'
 Vue.config.productionTip = false
 Vue.use(VueResource)
 
+router.beforeEach((to, from, next) => {
+  document.title = to.meta.title
+  next()
+})
+
 new Vue({
   router,
   store,
