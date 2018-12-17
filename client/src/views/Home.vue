@@ -5,9 +5,25 @@
       <div class="logo d-flex justify-content-center mt-4">
         <span>QuickChat</span>
       </div>
-      <div class="form-group d-flex justify-content-center ">
-        <button @click="connect" v-if="!connected">Connect</button>
-        <div class="input-group mb-3">
+      <div class="inputDataMobile d-flex justify-content-center">
+        <div class="form-group d-block d-md-none col-12" >
+          <div class="input-group mb-3 " >
+            <input  v-model="nickName"
+                    type="text" class="form-control form-control-lg createInput noFocus"
+                    placeholder="NickName" aria-label="Username" aria-describedby="basic-addon1">
+          </div>
+        </div>
+      </div>
+      <div class="inputData d-flex justify-content-center">
+        <div class="form-group d-none d-md-block col-md-4" >
+          <div class="input-group mb-3 " >
+            <input  v-model="nickName"
+                    type="text" class="form-control form-control-lg createInput noFocus"
+                    placeholder="NickName" aria-label="Username" aria-describedby="basic-addon1">
+          </div>
+        </div>
+      <div class="form-group col-12 col-md-8">
+        <div class="input-group mb-3 ">
           <input v-model="roomName"
                  class="form-control form-control-lg createInput noFocus"
                  placeholder="Find or Create room" type="text" aria-label="Recipient's username" aria-describedby="basic-addon2">
@@ -16,12 +32,12 @@
           </div>
         </div>
       </div>
-      <div class="result">
-        <div v-if="rooms.length === 0"><span>Nothing found.</span></div>
-        <div v-for="(room, index) in rooms" :key="index"><a href="" @click.prevent="connect(room)">{{room}}</a></div>
-        <!--<div><span>Nothing found.</span></div>-->
       </div>
-      <div class="newRoom form-group">
+      <div class="d-flex justify-content-center">
+        <div class="rooms col-12">
+          <div v-if="rooms.length === 0"><span>Nothing found.</span></div>
+          <div v-for="(room, index) in rooms" :key="index"><a href="" @click.prevent="connect(room)">{{room}}</a></div>
+        </div>
       </div>
     </div>
     <div v-if="connected">
@@ -41,12 +57,39 @@ export default {
   data () {
     return {
       connected: false,
-      roomName: '123',
+      filteredRoomName: '',
+      filterednickName: ''
     }
   },
   computed: {
     rooms () {
-      return this.$store.getters.rooms
+      let regex = new RegExp(this.roomName, 'i')
+      const matchedRooms = this.$store.getters.rooms.filter(el => {
+        return el ? el.match(regex) : false
+      })
+      return matchedRooms
+    },
+    roomName: {
+      set: function (name) {
+        let regex = new RegExp(/[a-z0-9]+/, 'ig')
+        this.filteredRoomName = name.match(regex)
+        this.filteredRoomName = this.filteredRoomName == null ? '' : this.filteredRoomName
+        return this.filteredRoomName
+      },
+      get: function () {
+        return this.filteredRoomName
+      }
+    },
+    nickName: {
+      set: function (name) {
+        let regex = new RegExp(/[a-z0-9]+/, 'ig')
+        this.filterednickName = name.match(regex)
+        this.filterednickName = this.filterednickName == null ? '' : this.filterednickName
+        return this.filterednickName
+      },
+      get: function () {
+        return this.filterednickName
+      }
     }
   },
   created () {
@@ -56,17 +99,36 @@ export default {
     }, 1000)
   },
   methods: {
+    validData () {
+      // window.alert(this.roomName.length)
+      if (this.roomName.length === 0 || this.nickName.length === 0) {
+        window.alert('Roomname and NickName cannot be empty.')
+        return false
+      }
+      return true
+    },
     getRooms () {
       this.$store.dispatch('getRooms')
     },
     connect (roomName) {
+      this.roomName = roomName
+      if (!this.validData()) return
       this.connected = true
-      this.$store.dispatch('connect', roomName)
+      console.log(this.nickName)
+      this.$store.dispatch('connect', { roomName: roomName, nickName: this.nickName })
     },
     createRoom () {
+      if (!this.validData()) return
+      this.getRooms()
+      console.log('111', this.roomName[0], this.rooms, this.rooms.includes(this.roomName))
+      if (this.rooms.includes(this.roomName[0])) {
+        window.alert('Room with this name already exists')
+        return
+      }
       this.connected = true
       this.$store.dispatch('createRoom', this.roomName)
-      this.$store.dispatch('connect', this.roomName)
+      console.log(this.nickName)
+      this.$store.dispatch('connect', { roomName: this.roomName, nickName: this.nickName })
       this.getRooms()
     }
   }
@@ -78,6 +140,13 @@ export default {
 
   .logo > span {
     font-size: 3em;
+
+    @media (max-width: 400px) {
+      font-size: 2em;
+    }
+    color: $mainColor;
+  }
+  .rooms{
     color: $mainColor;
   }
   .createInput{

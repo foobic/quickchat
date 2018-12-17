@@ -8,6 +8,7 @@ export default new Vuex.Store({
   state: {
     serverUrl: `${process.env.VUE_APP_SERVER_IP}:${process.env.VUE_APP_SERVER_PORT}`,
     roomName: '',
+    nickName: '',
     socket: null,
     messages: [],
     rooms: []
@@ -21,17 +22,22 @@ export default new Vuex.Store({
     }
   },
   mutations: {
-    CONNECT (state, roomName) {
-      console.log('connected')
-      state.roomName = roomName
-      state.socket = SocketCreator(`ws://${state.serverUrl}/${state.roomName}`)
+    CONNECT (state, data) {
+      console.log('connected', data.roomName, data.nickName)
+      state.roomName = data.roomName
+      state.nickName = data.nickName
+      state.socket = SocketCreator(`ws://${state.serverUrl}/${state.roomName}?nickname=${state.nickName}`)
       state.socket.$on('message', (msg) => {
         state.messages.push(msg)
+      })
+      state.socket.$on('error', (msg) => {
+        console.log('ERR: ', msg)
       })
     },
     SEND_MESSAGE (state, msg) {
       state.socket.send(msg)
-      state.messages.push(msg)
+      let time = '<sub>' + (new Date()).toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true }) + '</sub>'
+      state.messages.push('<b>' + state.nickName + '</b>' + ': ' + msg + ' ' + time)
     },
     REFRESH_ROOMS (state, rooms) {
       rooms = rooms.map(el => el.slice(1, el.length)) // remove slash from room name ex: '/football' => 'football'
@@ -39,8 +45,9 @@ export default new Vuex.Store({
     }
   },
   actions: {
-    connect ({ commit }, roomName) {
-      commit('CONNECT', roomName)
+    connect ({ commit }, data) {
+      console.log('test', data.roomName, data.nickName)
+      commit('CONNECT', data)
     },
     sendMessage ({ commit }, msg) {
       commit('SEND_MESSAGE', msg)

@@ -4,6 +4,7 @@ const http = require('http');
 const WebSocket = require('ws');
 const url = require('url');
 const rooms = {};
+let time = null;
 
 const receiveData = (req, cb) => {
   let body = '';
@@ -16,17 +17,34 @@ const receiveData = (req, cb) => {
 };
 
 const onConnection = (wss) => (ws) => {
-  console.log('connection', rooms);
+  // console.log('connection', rooms);
+  // console.log(ws)
+  ws.on('open', () => {
+    console.log('opened');
+  });
 
   ws.on('message', message => {
-    console.log('msg', message);
+    // console.log('nick', ws.nickName);
+    // ws.emit('error', (err) => {
+    //   console.log('err:', err);
+    // });
     wss.clients.forEach((client) => {
       if (client !== ws && client.readyState === WebSocket.OPEN) {
-        console.log('broadcast');
-        client.send(message);
+        // console.log('broadcast');
+        time =
+            '<sub>' +
+            (new Date()).toLocaleString('en-US',
+              { hour: 'numeric', minute: 'numeric', hour12: true }) +
+            '</sub>';
+        client.send(ws.nickName + ': ' + message + ' ' + time);
       }
     });
   });
+
+  ws.on('error', message => {
+    console.log(message);
+  });
+
 
 };
 
@@ -59,10 +77,16 @@ const server = http.createServer((req, res) => {
 
 server.on('upgrade', (request, socket, head) => {
 
-  const pathname = url.parse(request.url).pathname;
+  // console.log(request);
+  // console.log(request.url);
+  const parsedUrl = url.parse(request.url);
+  const pathname = parsedUrl.pathname;
+  const nickname = parsedUrl.query.split('=')[1];
+  // console.log()
   if (rooms.hasOwnProperty(pathname)) {
     // console.log(pathname + ' in socket list');
     rooms[pathname].handleUpgrade(request, socket, head, (ws) => {
+      ws.nickName = nickname;
       rooms[pathname].emit('connection', ws, request);
     });
   } else {

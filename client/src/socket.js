@@ -6,7 +6,6 @@ const newSocket = (url) => {
   const emitter = new Vue({
     methods: {
       send (message) {
-        console.log('sender')
         if (socket.readyState === 1) {
           console.log('sent')
           socket.send(message)
@@ -15,9 +14,14 @@ const newSocket = (url) => {
     }
   })
 
+  socket.testName = 'aaalex'
+
   socket.onmessage = function (msg) {
-    console.log('received: ', msg)
     emitter.$emit('message', msg.data)
+  }
+  socket.onopen = function () {
+    console.log('opened')
+    emitter.$emit('open')
   }
   socket.onerror = function (err) {
     emitter.$emit('error', err)
