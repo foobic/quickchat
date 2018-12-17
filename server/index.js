@@ -17,20 +17,19 @@ const receiveData = (req, cb) => {
 };
 
 const onConnection = (wss) => (ws) => {
-  // console.log('connection', rooms);
-  // console.log(ws)
   ws.on('open', () => {
     console.log('opened');
   });
-
+  ws.on('close', () => {
+    console.log('closed', wss.clients ? wss.clients.size : null);
+    if (wss.clients && wss.clients.size === 0) {
+      delete rooms[wss.roomName];
+      console.log(`'${wss.roomName}' room deleted.`);
+    }
+  });
   ws.on('message', message => {
-    // console.log('nick', ws.nickName);
-    // ws.emit('error', (err) => {
-    //   console.log('err:', err);
-    // });
     wss.clients.forEach((client) => {
       if (client !== ws && client.readyState === WebSocket.OPEN) {
-        // console.log('broadcast');
         time =
             '<sub>' +
             (new Date()).toLocaleString('en-US',
@@ -60,6 +59,7 @@ const server = http.createServer((req, res) => {
         res.end(`'${roomName}' already exists.`);
       }
       const wss = new WebSocket.Server({ noServer: true });
+      wss.roomName = roomName;
       wss.on('connection', onConnection(wss));
       rooms[roomName] = wss;
       res.end(`'${roomName}' room successfully created.`);
@@ -77,14 +77,10 @@ const server = http.createServer((req, res) => {
 
 server.on('upgrade', (request, socket, head) => {
 
-  // console.log(request);
-  // console.log(request.url);
   const parsedUrl = url.parse(request.url);
   const pathname = parsedUrl.pathname;
   const nickname = parsedUrl.query.split('=')[1];
-  // console.log()
   if (rooms.hasOwnProperty(pathname)) {
-    // console.log(pathname + ' in socket list');
     rooms[pathname].handleUpgrade(request, socket, head, (ws) => {
       ws.nickName = nickname;
       rooms[pathname].emit('connection', ws, request);
@@ -93,19 +89,6 @@ server.on('upgrade', (request, socket, head) => {
     console.log(pathname + ' destroyed.');
     socket.destroy();
   }
-  //
-  // if (pathname === '/foo') {
-  //   wss1.handleUpgrade(request, socket, head, (ws) => {
-  //     console.log();
-  //       rooms['/foo'].emit('connection', ws, request);
-  //   });
-  // } else if (pathname === '/bar') {
-  //   wss2.handleUpgrade(request, socket, head, (ws) => {
-  //       rooms['/bar'].emit('connection', ws, request);
-  //   });
-  // } else {
-  //   socket.destroy();
-  // }
 });
 
 

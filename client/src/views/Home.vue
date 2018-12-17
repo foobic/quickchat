@@ -56,7 +56,6 @@ export default {
   },
   data () {
     return {
-      connected: false,
       filteredRoomName: '',
       filterednickName: ''
     }
@@ -74,10 +73,10 @@ export default {
         let regex = new RegExp(/[a-z0-9]+/, 'ig')
         this.filteredRoomName = name.match(regex)
         this.filteredRoomName = this.filteredRoomName == null ? '' : this.filteredRoomName
-        return this.filteredRoomName
+        return this.filteredRoomName[0]
       },
       get: function () {
-        return this.filteredRoomName
+        return this.filteredRoomName[0]
       }
     },
     nickName: {
@@ -85,10 +84,16 @@ export default {
         let regex = new RegExp(/[a-z0-9]+/, 'ig')
         this.filterednickName = name.match(regex)
         this.filterednickName = this.filterednickName == null ? '' : this.filterednickName
-        return this.filterednickName
+        return this.filterednickName[0]
       },
       get: function () {
-        return this.filterednickName
+        return this.filterednickName[0]
+      }
+    },
+    connected: {
+      get: function () {
+        console.log(this.$store.state.socket)
+        return this.$store.state.socket != null
       }
     }
   },
@@ -111,21 +116,21 @@ export default {
       this.$store.dispatch('getRooms')
     },
     connect (roomName) {
-      this.roomName = roomName
-      if (!this.validData()) return
-      this.connected = true
+      if (this.nickName.length === 0) return
+      this.$store.state.roomName = roomName
+      // this.connected = true
       console.log(this.nickName)
       this.$store.dispatch('connect', { roomName: roomName, nickName: this.nickName })
     },
     createRoom () {
       if (!this.validData()) return
       this.getRooms()
-      console.log('111', this.roomName[0], this.rooms, this.rooms.includes(this.roomName))
-      if (this.rooms.includes(this.roomName[0])) {
+      console.log('111', this.roomName, this.rooms, this.rooms.includes(this.roomName))
+      if (this.rooms.includes(this.roomName)) {
         window.alert('Room with this name already exists')
         return
       }
-      this.connected = true
+      // this.connected = true
       this.$store.dispatch('createRoom', this.roomName)
       console.log(this.nickName)
       this.$store.dispatch('connect', { roomName: this.roomName, nickName: this.nickName })

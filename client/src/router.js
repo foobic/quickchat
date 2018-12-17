@@ -27,7 +27,7 @@ export default new Router({
       component: About,
       meta: {
         title: 'About'
-      },
+      }
       // component: () => import(/* webpackChunkName: "about" */ './views/About.vue')
     }
   ]

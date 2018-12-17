@@ -33,6 +33,15 @@ export default new Vuex.Store({
       state.socket.$on('error', (msg) => {
         console.log('ERR: ', msg)
       })
+      state.socket.$on('close', () => {
+        console.log('Connection closed.')
+      })
+    },
+    CLOSE (state) {
+      state.roomName = ''
+      state.socket.close()
+      state.socket = null
+      state.messages = []
     },
     SEND_MESSAGE (state, msg) {
       state.socket.send(msg)
@@ -46,8 +55,10 @@ export default new Vuex.Store({
   },
   actions: {
     connect ({ commit }, data) {
-      console.log('test', data.roomName, data.nickName)
       commit('CONNECT', data)
+    },
+    close ({ commit }) {
+      commit('CLOSE')
     },
     sendMessage ({ commit }, msg) {
       commit('SEND_MESSAGE', msg)

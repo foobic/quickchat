@@ -1,6 +1,12 @@
 <template>
   <div id="room">
     <div class="roomWrapper d-flex container">
+      <div  class="infoBlock px-4">
+        #{{roomName}}
+        <button  @click="close"  class="btn btn-primary btn-xs noFocus">Close</button>
+      </div>
+    </div>
+    <div class="roomWrapper d-flex container">
       <div  class="msgBlock px-4">
         <div v-for="(msg, index) in messages" :key="index">
           <span v-html="msg"></span>
@@ -35,6 +41,9 @@ export default {
   computed: {
     messages () {
       return this.$store.getters.messages
+    },
+    roomName () {
+      return this.$store.state.roomName
     }
   },
   watch: {
@@ -54,6 +63,10 @@ export default {
       if (this.msg.length === 0) return
       this.$store.dispatch('sendMessage', this.msg)
       this.msg = ''
+    },
+    close(){
+      console.log('closing')
+      this.$store.dispatch('close')
     }
   }
 }
@@ -66,11 +79,14 @@ export default {
     font-size: 0.7em !important;
   }
   .msgBlock{
-    height: 80vh;
+    height: 70vh;
     overflow-y: auto ;
     width: 100vw;
     display: flex;
     flex-direction: column;
+  }
+  .infoBlock{
+    height: 10vh;
   }
   /*.msgInput{*/
     /*height: 10vh;*/

@@ -10,11 +10,12 @@ const newSocket = (url) => {
           console.log('sent')
           socket.send(message)
         }
+      },
+      close () {
+        socket.close()
       }
     }
   })
-
-  socket.testName = 'aaalex'
 
   socket.onmessage = function (msg) {
     emitter.$emit('message', msg.data)
@@ -22,6 +23,10 @@ const newSocket = (url) => {
   socket.onopen = function () {
     console.log('opened')
     emitter.$emit('open')
+  }
+  socket.onclose = function () {
+    console.log('closed')
+    emitter.$emit('close')
   }
   socket.onerror = function (err) {
     emitter.$emit('error', err)
