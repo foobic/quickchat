@@ -4,7 +4,7 @@ module.exports = {
     name: 'client',
     cwd: './client',
     script: 'npm',
-    args: 'run serve',
+    args: 'run serve ',
     instances: 1,
     autorestart: true,
     watch: false
