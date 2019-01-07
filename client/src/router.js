@@ -14,8 +14,8 @@ export default new Router({
       name: 'home',
       component: Home,
       meta: {
-        title: 'Home'
-      }
+        title: 'Home',
+      },
     },
     {
       path: '/about',
@@ -26,9 +26,9 @@ export default new Router({
 
       component: About,
       meta: {
-        title: 'About'
-      }
+        title: 'About',
+      },
       // component: () => import(/* webpackChunkName: "about" */ './views/About.vue')
-    }
-  ]
+    },
+  ],
 })

@@ -1,4 +1,4 @@
-import '@babel/polyfill'
+// import '@babel/polyfill';
 import Vue from 'vue'
 import VueResource from 'vue-resource'
 import './plugins/bootstrap-vue'
@@ -17,5 +17,5 @@ router.beforeEach((to, from, next) => {
 new Vue({
   router,
   store,
-  render: h => h(App)
+  render: h => h(App),
 }).$mount('#app')

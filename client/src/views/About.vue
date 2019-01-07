@@ -1,17 +1,16 @@
 <template>
   <div>
-sdfdf
+    sdfdf
     {{e}}
   </div>
-</template>
+</template>   
 
 <script>
-export default{
-  data () {
+export default {
+  data() {
     return {
-      e: this.$store.state.serverUrl
-    }
-  }
-}
-
+      e: this.$store.state.serverUrl,
+    };
+  },
+};
 </script>

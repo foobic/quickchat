@@ -3,6 +3,7 @@ import Vue from 'vue'
 const newSocket = (url) => {
   const socket = new WebSocket(url)
 
+  // socket.open()
   const emitter = new Vue({
     methods: {
       send (message) {
@@ -13,6 +14,10 @@ const newSocket = (url) => {
       },
       close () {
         socket.close()
+      },
+      open () {
+        console.log('opened 22')
+        socket.open()
       }
     }
   })
@@ -22,6 +27,7 @@ const newSocket = (url) => {
   }
   socket.onopen = function () {
     console.log('opened')
+    // socket.open()
     emitter.$emit('open')
   }
   socket.onclose = function () {

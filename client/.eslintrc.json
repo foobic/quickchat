@@ -1,0 +1,23 @@
+{
+  "extends": [
+    "airbnb", 
+    "prettier", 
+    "plugin:vue/essential",
+    "@vue/standard",
+    "eslint:recommended"
+  ],
+  "plugins": ["prettier"],
+  "rules": {
+    "prettier/prettier": ["error"],
+    "comma-dangle": ["error", "always-multiline"]
+  },
+  "parserOptions": {
+    "parser": "babel-eslint",
+    "ecmaVersion": 6,
+    "sourceType": "module"
+  },
+  "env": {
+    "browser": true,
+    "node": true
+  }
+}

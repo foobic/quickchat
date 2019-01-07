@@ -27,6 +27,9 @@ export default new Vuex.Store({
       state.roomName = data.roomName
       state.nickName = data.nickName
       state.socket = SocketCreator(`ws://${state.serverUrl}/${state.roomName}?nickname=${state.nickName}`)
+      state.socket.$on('open', () => {
+        console.log('Connection opened.')
+      })
       state.socket.$on('message', (msg) => {
         state.messages.push(msg)
       })
