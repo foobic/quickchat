@@ -25,18 +25,7 @@ const onConnection = wss => ws => {
       }
     });
   });
-  ws.on('close', () => {
-    wss.clients.forEach(client => {
-      if (client !== ws && client.readyState === WebSocket.OPEN) {
-        console.log('111closed');
-      }
-    });
-    console.log('closed', wss.clients ? wss.clients.size : null);
-    if (wss.clients && wss.clients.size === 0) {
-      delete rooms[wss.roomName];
-      console.log(`'${wss.roomName}' room deleted.`);
-    }
-  });
+
   ws.on('message', message => {
     wss.clients.forEach(client => {
       if (client !== ws && client.readyState === WebSocket.OPEN) {
@@ -52,6 +41,18 @@ const onConnection = wss => ws => {
     });
   });
 
+  ws.on('close', () => {
+    wss.clients.forEach(client => {
+      if (client !== ws && client.readyState === WebSocket.OPEN) {
+        console.log('111closed');
+      }
+    });
+    console.log('closed', wss.clients ? wss.clients.size : null);
+    if (wss.clients && wss.clients.size === 0) {
+      delete rooms[wss.roomName];
+      console.log(`'${wss.roomName}' room deleted.`);
+    }
+  });
   ws.on('error', message => {
     console.log(message);
   });
@@ -68,8 +69,8 @@ const server = http.createServer((req, res) => {
       }
       const wss = new WebSocket.Server({noServer: true});
       wss.roomName = roomName;
-      wss.on('connection', onConnection(wss));
       rooms[roomName] = wss;
+      wss.on('connection', onConnection(wss));
       res.end(`'${roomName}' room successfully created.`);
     });
   } else if (req.method === 'GET' && urlParsed.pathname === '/rooms') {
@@ -85,17 +86,18 @@ server.on('upgrade', (request, socket, head) => {
   const parsedUrl = url.parse(request.url);
   const {pathname} = parsedUrl;
   const nickname = parsedUrl.query.split('=')[1];
+  console.log(rooms);
   if (Object.prototype.hasOwnProperty.call(rooms, 'pathname')) {
     rooms[pathname].handleUpgrade(request, socket, head, ws => {
-      // ws.nickName = nickname;
-      const client = ws;
-      client.nickName = nickname;
+      ws.nickName = nickname;
+      // const client = ws;
+      // client.nickName = nickname;
       // ws.open()
-      rooms[pathname].emit('connection', client, request);
+      rooms[pathname].emit('connection', ws, request);
     });
   } else {
-    console.log(`${pathname} destroyed.`);
     socket.destroy();
+    console.log(`${rooms}, ${pathname} destroyed.`);
   }
 });
 
