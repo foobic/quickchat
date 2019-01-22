@@ -1,23 +1,29 @@
 {
   "extends": [
-    "airbnb", 
-    "@vue/standard",
-    "prettier", 
+    "airbnb",
     "plugin:vue/essential",
-    "eslint:recommended"
+    "plugin:prettier/recommended"
   ],
-  "plugins": ["prettier"],
-  "rules": {
-    "prettier/prettier": ["error"],
-    "comma-dangle": ["error", "always-multiline"]
-  },
+  "plugins": [
+    "babel",
+    "vue",
+    "prettier"
+  ],
   "parserOptions": {
     "parser": "babel-eslint",
     "ecmaVersion": 6,
-    "sourceType": "module"
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": false
+    }
   },
   "env": {
     "browser": true,
     "node": true
+  },
+  "rules": {
+    "prettier/prettier": ["error"],
+    "comma-dangle": ["error", "always-multiline"]
   }
+
 }
