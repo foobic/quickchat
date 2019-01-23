@@ -21,15 +21,16 @@ const onConnection = wss => ws => {
   ws.on('open', () => {
     wss.clients.forEach(client => {
       if (client !== ws) {
-        console.log('111opened');
+        console.log('111opene1d');
       }
     });
   });
 
   ws.on('message', message => {
     wss.clients.forEach(client => {
+      // console.log(client);
       if (client !== ws && client.readyState === WebSocket.OPEN) {
-        time = `<sub>
+        time = `<sub> 
           ${new Date().toLocaleString('en-US', {
             hour: 'numeric',
             minute: 'numeric',
@@ -61,9 +62,11 @@ const onConnection = wss => ws => {
 const server = http.createServer((req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   const urlParsed = url.parse(req.url);
+  console.log('11000asdfd  fasd fsdf000 asdffadf 011  000');
   if (req.method === 'POST' && urlParsed.pathname === '/create') {
     receiveData(req, body => {
       const roomName = `/${body.name}`;
+      console.log('21232', roomName, rooms);
       if (roomName in rooms) {
         res.end(`'${roomName}' already exists.`);
       }
@@ -86,12 +89,12 @@ server.on('upgrade', (request, socket, head) => {
   const parsedUrl = url.parse(request.url);
   const {pathname} = parsedUrl;
   const nickname = parsedUrl.query.split('=')[1];
-  console.log(rooms);
+  // console.log(rooms);
   if (Object.prototype.hasOwnProperty.call(rooms, 'pathname')) {
     rooms[pathname].handleUpgrade(request, socket, head, ws => {
-      ws.nickName = nickname;
-      // const client = ws;
-      // client.nickName = nickname;
+      // ws.nickName = nickname;
+      const client = ws;
+      client.nickName = nickname;
       // ws.open()
       rooms[pathname].emit('connection', ws, request);
     });

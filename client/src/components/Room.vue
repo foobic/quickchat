@@ -2,8 +2,10 @@
   <div id="room">
     <div class="roomWrapper d-flex container">
       <div class="infoBlock px-4">
-        #{{roomName}}
-        <button @click="close" class="btn btn-primary btn-xs noFocus">Close</button>
+        #{{ roomName }}
+        <button @click="close" class="btn btn-primary btn-xs noFocus">
+          Close
+        </button>
       </div>
     </div>
     <div class="roomWrapper d-flex container">
@@ -13,7 +15,7 @@
         </div>
       </div>
     </div>
-    <br>
+    <br />
     <div class="roomWrapper d-flex container">
       <div class="msgInput w-100">
         <div class="form-group col-12">
@@ -27,24 +29,41 @@
               v-model="msg"
               @keyup.enter="send"
               ref="msgInput"
-            >
+            />
             <div class="input-group-append">
-              <button @click="send" class="btn btn-primary btn-lg noFocus createBtn">Send</button>
+              <button
+                @click="send"
+                class="btn btn-primary btn-lg noFocus createBtn"
+              >
+                Send
+              </button>
             </div>
           </div>
         </div>
       </div>
     </div>
+
+    <prompt
+      title="Submit your name"
+      input-placeholder="Enter your name"
+      info-msg="NickName cannot be empty. And should contain only latin or numeric
+      characters."
+    ></prompt>
   </div>
 </template>
 
 <script>
+import Prompt from './Modal/Prompt.vue';
+
 export default {
   name: 'Room',
   data() {
     return {
       msg: '',
     };
+  },
+  components: {
+    prompt: Prompt,
   },
   computed: {
     messages() {
@@ -55,10 +74,10 @@ export default {
     },
   },
   watch: {
-    messages: function() {
+    messages() {
       // auto scroll down
       setTimeout(() => {
-        let objDiv = document.getElementsByClassName('msgBlock')[0];
+        const objDiv = document.getElementsByClassName('msgBlock')[0];
         objDiv.scrollTop = objDiv.scrollHeight;
       }, 100);
     },
@@ -72,8 +91,8 @@ export default {
       this.$store.dispatch('sendMessage', this.msg);
       this.msg = '';
     },
+    promptNickname() {},
     close() {
-      console.log('closing');
       this.$store.dispatch('close');
     },
   },

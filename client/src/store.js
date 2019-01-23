@@ -1,8 +1,10 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
-import SocketCreator from './socket';
+import VueSocket from './socket';
 
 Vue.use(Vuex);
+
+/* eslint no-param-reassign: 0 */
 
 export default new Vuex.Store({
   state: {
@@ -22,18 +24,36 @@ export default new Vuex.Store({
     rooms(state) {
       return state.rooms;
     },
+    roomname(state) {
+      return state.roomname;
+    },
   },
   mutations: {
-    CONNECT(state, data) {
-      console.log('connected', data.roomname, data.nickname);
-      state.roomname = data.roomname;
-      state.nickname = data.nickname;
-      state.socket = SocketCreator(
+    CONNECT(state) {
+      // console.log('connected', data.roomname, data.nickname);
+      // state.roomname = data.roomname;
+      // state.nickname = data.nickname;
+
+      state.socket = VueSocket(
         `ws://${state.serverUrl}/${state.roomname}?nickname=${state.nickname}`,
       );
-      state.socket.$on('open', () => {
-        console.log('Connection opened.');
-      });
+      // state.socket.print();
+      // const vm = new Vue();
+      // vm.$connect(
+      //   `ws://${state.serverUrl}/${state.roomname}?nickname=${state.nickname}`,
+      // );
+      // console.log(vm.$socket);
+
+      // this.$connect(
+      //   `ws://${state.serverUrl}/${state.roomname}?nickname=${state.nickname}`,
+      // );
+      // console.log(this.$socket);
+      // state.socket = SocketCreator(
+      //   `ws://${state.serverUrl}/${state.roomname}?nickname=${state.nickname}`,
+      // );
+      // state.socket.$on('open', () => {
+      //   console.log('Connection opened.');
+      // });
       // state.socket.$on('message', msg => {
       //   state.messages.push(msg);
       // });
@@ -52,26 +72,27 @@ export default new Vuex.Store({
     },
     SEND_MESSAGE(state, msg) {
       state.socket.send(msg);
-      let time =
-        '<sub>' +
-        new Date().toLocaleString('en-US', {
-          hour: 'numeric',
-          minute: 'numeric',
-          hour12: true,
-        }) +
-        '</sub>';
-      state.messages.push(
-        '<b>' + state.nickname + '</b>' + ': ' + msg + ' ' + time,
-      );
+      const time = `<sub>${new Date().toLocaleString('en-US', {
+        hour: 'numeric',
+        minute: 'numeric',
+        hour12: true,
+      })}</sub>`;
+      state.messages.push(`<b>${state.nickname}</b> : ${msg} ${time}`);
     },
     REFRESH_ROOMS(state, rooms) {
       rooms = rooms.map(el => el.slice(1, el.length)); // remove slash from room name ex: '/football' => 'football'
       state.rooms = rooms;
     },
+    SET_ROOMNAME(state, newRoomname) {
+      state.roomname = newRoomname;
+    },
+    SET_NICKNAME(state, newNickname) {
+      state.nickname = newNickname;
+    },
   },
   actions: {
-    connect({commit}, data) {
-      commit('CONNECT', data);
+    connect({commit}) {
+      commit('CONNECT');
     },
     close({commit}) {
       commit('CLOSE');
@@ -79,7 +100,13 @@ export default new Vuex.Store({
     sendMessage({commit}, msg) {
       commit('SEND_MESSAGE', msg);
     },
-    createRoom({commit, state}, roomname) {
+    setNickname({commit}, newNickname) {
+      commit('SET_NICKNAME', newNickname);
+    },
+    setRoomname({commit}, newRoomname) {
+      commit('SET_ROOMNAME', newRoomname);
+    },
+    createRoom({state}, roomname) {
       Vue.http
         .post(
           `http://${state.serverUrl}/create`,
@@ -87,10 +114,10 @@ export default new Vuex.Store({
           {headers: {'content-type': 'application/x-www-form-urlencoded'}},
         )
         .then(response => {
-          console.log(response.body);
+          // console.log(response.body);
         })
         .catch(e => {
-          console.log(e);
+          // console.log(e);
         });
     },
     getRooms({commit, state}) {
@@ -101,7 +128,7 @@ export default new Vuex.Store({
           commit('REFRESH_ROOMS', response.body);
         })
         .catch(e => {
-          console.log(e);
+          // console.log(e);
         });
     },
   },
