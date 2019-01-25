@@ -5,6 +5,7 @@
         <input
           v-focus
           v-restrict.alpha.number
+          v-maxchars="10"
           v-model="roomname"
           class="createInput noFocus form-control form-control-lg"
           placeholder="Find or Create room"

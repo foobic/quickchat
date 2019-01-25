@@ -41,8 +41,7 @@ Vue.directive('restrict', {
       ) {
         return; // allow
       }
-      console.log(e, e.key, e.key.charCodeAt(0), e.key.match(regex));
-      // document.write(e, e.key, e.key.charCodeAt(0), e.key.match(regex));
+
       if (
         binding.modifiers.alpha &&
         // a-z/A-Z
