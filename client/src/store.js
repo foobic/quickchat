@@ -89,6 +89,12 @@ export default new Vuex.Store({
     SET_NICKNAME(state, newNickname) {
       state.nickname = newNickname;
     },
+    RESET_ROOMNAME(state) {
+      state.roomname = '';
+    },
+    RESET_NICKNAME(state) {
+      state.nickname = '';
+    },
   },
   actions: {
     connect({commit}) {
@@ -105,6 +111,12 @@ export default new Vuex.Store({
     },
     setRoomname({commit}, newRoomname) {
       commit('SET_ROOMNAME', newRoomname);
+    },
+    resetRoomname({commit}) {
+      commit('RESET_ROOMNAME');
+    },
+    resetNickname({commit}) {
+      commit('RESET_NICKNAME');
     },
     createRoom({state}, roomname) {
       Vue.http

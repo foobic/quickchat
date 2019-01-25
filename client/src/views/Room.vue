@@ -2,7 +2,7 @@
   <div id="room">
     <div class="roomWrapper d-flex container">
       <div class="infoBlock px-4">
-        #{{ roomName }}
+        #{{ roomname }}
         <button @click="close" class="btn btn-primary btn-xs noFocus">
           Close
         </button>
@@ -48,12 +48,14 @@
       input-placeholder="Enter your name"
       info-msg="NickName cannot be empty. And should contain only latin or numeric
       characters."
+      v-on:promptClosed="handleNickname"
+      ref="namePrompt"
     ></prompt>
   </div>
 </template>
 
 <script>
-import Prompt from './Modal/Prompt.vue';
+import Prompt from '../components/Modal/Prompt.vue';
 
 export default {
   name: 'Room',
@@ -69,10 +71,17 @@ export default {
     messages() {
       return this.$store.getters.messages;
     },
-    roomName() {
-      return this.$store.state.roomName;
+    roomname() {
+      return this.$store.getters.roomname;
     },
   },
+
+  beforeRouteLeave(to, from, next) {
+    this.$store.dispatch('resetRoomname');
+    this.$store.dispatch('resetNickname');
+    next();
+  },
+
   watch: {
     messages() {
       // auto scroll down
@@ -82,16 +91,22 @@ export default {
       }, 100);
     },
   },
+
   mounted() {
+    this.$refs.namePrompt.showModal();
     this.$refs.msgInput.focus();
+    this.$store.dispatch('setRoomname', this.$route.params.name);
+    // console.log();
   },
   methods: {
+    handleNickname(name) {
+      this.$store.dispatch('setNickname', name);
+    },
     send() {
       if (this.msg.length === 0) return;
       this.$store.dispatch('sendMessage', this.msg);
       this.msg = '';
     },
-    promptNickname() {},
     close() {
       this.$store.dispatch('close');
     },
@@ -100,7 +115,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import '../views/common.scss';
+@import '../assets/common.scss';
 span {
   color: #3b4857d9 !important;
   font-size: 0.7em !important;

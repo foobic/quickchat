@@ -1,7 +1,5 @@
 <template>
   <div>
-    <!-- <b-btn v-b-modal.modalPrevent>Launch demo modal</b-btn> -->
-    <!-- Modal Component -->
     <b-modal
       id="modalPrevent"
       ref="modal"
@@ -48,16 +46,12 @@ export default {
     },
     handleOk(event) {
       event.preventDefault();
-      if (!this.name) {
-        // window.alert('Please enter your name');
-      } else {
-        this.handleSubmit();
-      }
+      this.handleSubmit();
     },
     handleSubmit() {
-      this.clearName();
       this.$refs.modal.hide();
-      this.$emit('promptClosed');
+      this.$emit('promptClosed', this.name);
+      this.clearName();
     },
   },
 };

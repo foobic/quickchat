@@ -47,10 +47,12 @@ export default {
   },
   methods: {
     createRoom() {
-      this.$store.dispatch('setRoomname', this.roomname);
+      // this.$store.dispatch('createRoom', this.roomName);
+      // this.$store.dispatch('setRoomname', this.roomname);
+      this.$store.dispatch('createRoom');
+      this.$router.push(`/room/${this.roomname}`);
       // if (!this.isDataCorrect()) return;
       // if (this.isRoomExists()) return;
-      // this.$store.dispatch('createRoom', this.roomName);
       // this.$store.dispatch('connect');
     },
     isRoomExists() {

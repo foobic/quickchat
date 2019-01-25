@@ -39,8 +39,15 @@ export default {
   data() {
     return {
       // filteredRoomname: '123',
-      filteredNickname: '',
+      // filteredNickname: '',
     };
+  },
+  // mounted() {},
+  created() {
+    document.addEventListener('backbutton', this.resetData, true);
+  },
+  beforeDestroy() {
+    document.removeEventListener('backbutton', this.resetData);
   },
   computed: {
     // roomName: {
@@ -59,14 +66,20 @@ export default {
       },
     },
   },
-  mounted() {
-    // this.$refs.alertEmptyRoomname.showModal();
-    // setInterval(() => {
-    // this.$refs.alertEmptyRoomname.showModal();
-    // this.getRooms();
-    // }, 1000);
-  },
+  // mounted() {
+  // this.$refs.alertEmptyRoomname.showModal();
+  // setInterval(() => {
+  // this.$refs.alertEmptyRoomname.showModal();
+  // this.getRooms();
+  // }, 1000);
+  // },
   methods: {
+    resetData(event) {
+      console.log(event);
+      console.log('asdfds');
+      this.$store.dispatch('resetRoomname');
+      this.$store.dispatch('resetNickname');
+    },
     // isDataCorrect() {
     //   if (!this.isNameCorrect(this.roomName)) return false;
     //   // this.promptNickname();
@@ -74,13 +87,10 @@ export default {
     //   if (!this.isNameCorrect(this.filteredNickname)) return false;
     //   return true;
     // },
-    connect(roomName) {
-      if (!this.isDataCorrect()) return;
-      this.$store.dispatch('connect', {
-        roomName,
-        nickName: this.filterenNickname,
-      });
-    },
+    // connect() {
+    //   if (!this.isDataCorrect()) return;
+    //   this.$store.dispatch('connect');
+    // },
   },
 };
 </script>
