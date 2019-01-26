@@ -30,42 +30,11 @@ export default new Vuex.Store({
   },
   mutations: {
     CONNECT(state) {
-      // console.log('connected', data.roomname, data.nickname);
-      // state.roomname = data.roomname;
-      // state.nickname = data.nickname;
-
       state.socket = VueSocket(
         `ws://${state.serverUrl}/${state.roomname}?nickname=${state.nickname}`,
       );
-      // state.socket.print();
-      // const vm = new Vue();
-      // vm.$connect(
-      //   `ws://${state.serverUrl}/${state.roomname}?nickname=${state.nickname}`,
-      // );
-      // console.log(vm.$socket);
-
-      // this.$connect(
-      //   `ws://${state.serverUrl}/${state.roomname}?nickname=${state.nickname}`,
-      // );
-      // console.log(this.$socket);
-      // state.socket = SocketCreator(
-      //   `ws://${state.serverUrl}/${state.roomname}?nickname=${state.nickname}`,
-      // );
-      // state.socket.$on('open', () => {
-      //   console.log('Connection opened.');
-      // });
-      // state.socket.$on('message', msg => {
-      //   state.messages.push(msg);
-      // });
-      // state.socket.$on('error', msg => {
-      //   console.log('ERR: ', msg);
-      // });
-      // state.socket.$on('close', () => {
-      //   console.log('Connection closed.');
-      // });
     },
     CLOSE(state) {
-      // state.roomname = '';
       state.socket.close();
       state.socket = null;
       state.messages = [];
@@ -80,7 +49,7 @@ export default new Vuex.Store({
       state.messages.push(`<b>${state.nickname}</b> : ${msg} ${time}`);
     },
     REFRESH_ROOMS(state, rooms) {
-      rooms = rooms.map(el => el.slice(1, el.length)); // remove slash from room name ex: '/football' => 'football'
+      rooms = rooms.map(el => el.slice(1, el.length)); // remove slash from roomname ex: '/football' => 'football'
       state.rooms = rooms;
     },
     SET_ROOMNAME(state, newRoomname) {
@@ -119,29 +88,16 @@ export default new Vuex.Store({
       commit('RESET_NICKNAME');
     },
     createRoom({state}, roomname) {
-      Vue.http
-        .post(
-          `http://${state.serverUrl}/create`,
-          JSON.stringify({name: roomname}),
-          {headers: {'content-type': 'application/x-www-form-urlencoded'}},
-        )
-        .then(response => {
-          // console.log(response.body);
-        })
-        .catch(e => {
-          // console.log(e);
-        });
+      Vue.http.post(
+        `http://${state.serverUrl}/create`,
+        JSON.stringify({name: roomname}),
+        {headers: {'content-type': 'application/x-www-form-urlencoded'}},
+      );
     },
     getRooms({commit, state}) {
-      Vue.http
-        .get(`http://${state.serverUrl}/rooms`)
-        .then(response => {
-          // console.log(response.body)
-          commit('REFRESH_ROOMS', response.body);
-        })
-        .catch(e => {
-          // console.log(e);
-        });
+      Vue.http.get(`http://${state.serverUrl}/rooms`).then(response => {
+        commit('REFRESH_ROOMS', response.body);
+      });
     },
   },
 });

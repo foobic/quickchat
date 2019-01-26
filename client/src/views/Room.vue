@@ -96,7 +96,6 @@ export default {
     this.$refs.namePrompt.showModal();
     this.$refs.msgInput.focus();
     this.$store.dispatch('setRoomname', this.$route.params.name);
-    // console.log();
   },
   methods: {
     handleNickname(name) {
@@ -130,7 +129,4 @@ span {
 .infoBlock {
   height: 10vh;
 }
-/*.msgInput{*/
-/*height: 10vh;*/
-/*}*/
 </style>
