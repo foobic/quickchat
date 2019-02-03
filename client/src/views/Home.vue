@@ -1,18 +1,18 @@
 <template>
   <div id="home">
-    <div class="container" v-if="!connected">
+    <div class="container">
       <logo></logo>
       <search></search>
       <div class="roomList">
         <roomList></roomList>
       </div>
     </div>
-    <alert type="danger" ref="alertEmptyRoomname">
+    <myalert type="danger" ref="alertEmptyRoomname">
       Roomname cannot be empty. And should contain only alphabetic and numeric
       characters.
-    </alert>
-    <alert type="danger" ref="alertRoomAlreadyExists"
-      >Room with this name already exists</alert
+    </myalert>
+    <myalert type="danger" ref="alertRoomAlreadyExists"
+      >Room with this name already exists</myalert
     >
   </div>
 </template>
@@ -28,20 +28,15 @@ export default {
   components: {
     roomList: RoomList,
     search: Search,
-    alert: Alert,
+    myalert: Alert,
     logo: Logo,
   },
   data() {
     return {};
   },
-  computed: {
-    connected: {
-      get() {
-        return this.$store.state.socket != null;
-      },
-    },
-  },
-  methods: {},
+  // created() {
+  //   this.$store.dispatch('connectToRoomlist');
+  // },
 };
 </script>
 

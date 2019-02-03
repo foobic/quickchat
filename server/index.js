@@ -3,39 +3,57 @@ const WebSocket = require('ws');
 const url = require('url');
 
 const rooms = {};
-let time = null;
+const roomListSocket = new WebSocket.Server({noServer: true});
+const {receiveData} = require('./helpers');
+const logger = require('./logger');
 
-const receiveData = (req, cb) => {
-  let body = '';
-  req
-    .on('data', chunk => {
-      body += chunk;
-    })
-    .on('end', () => {
-      body = JSON.parse(body);
-      cb(body);
-    });
+roomListSocket.broadcast = function broadcast(data) {
+  roomListSocket.clients.forEach(client => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(JSON.stringify(data));
+    }
+  });
 };
 
+roomListSocket.on('connection', ws => {
+  ws.on('close', () => {
+    console.log('Roomlist connection closed.');
+    // roomListSocket.clients
+    console.log(roomListSocket.clients.size);
+  });
+  // console.log();
+  // ws.send(JSON.stringify(Object.keys(rooms)));
+});
+
+let msg = null;
+
 const onConnection = wss => ws => {
+  ws.on('open', param => {
+    console.log('opened');
+  });
+
   ws.on('message', message => {
     wss.clients.forEach(client => {
       if (client !== ws && client.readyState === WebSocket.OPEN) {
-        time = `<sub> 
-          ${new Date().toLocaleString('en-US', {
+        msg = {
+          nickname: ws.nickname,
+          body: message,
+          time: new Date().toLocaleString('en-US', {
             hour: 'numeric',
             minute: 'numeric',
             hour12: true,
-          })}
-          </sub>`;
-        client.send(`${ws.nickName}: ${message} ${time}`);
+          }),
+        };
+        client.send(JSON.stringify(msg));
       }
     });
   });
 
   ws.on('close', () => {
     if (wss.clients && wss.clients.size === 0) {
+      logger({msg: `Room ${wss.roomName} deleted.`});
       delete rooms[wss.roomName];
+      roomListSocket.broadcast(Object.keys(rooms));
     }
   });
 };
@@ -53,28 +71,30 @@ const server = http.createServer((req, res) => {
       wss.roomName = roomName;
       rooms[roomName] = wss;
       wss.on('connection', onConnection(wss));
+      roomListSocket.broadcast(Object.keys(rooms));
       res.end(`'${roomName}' room successfully created.`);
     });
-  } else if (req.method === 'GET' && urlParsed.pathname === '/rooms') {
-    const result = [];
-    for (let i = 0; i < rooms.length; i += 1) {
-      result.push(rooms[i]);
-    }
-    res.end(JSON.stringify(result));
   }
 });
 
 server.on('upgrade', (request, socket, head) => {
   const parsedUrl = url.parse(request.url);
   const {pathname} = parsedUrl;
-  const nickname = parsedUrl.query.split('=')[1];
-  if (Object.prototype.hasOwnProperty.call(rooms, 'pathname')) {
+  const nickname =
+    parsedUrl && parsedUrl.query ? parsedUrl.query.split('=')[1] : null;
+
+  if (pathname === '/roomList') {
+    roomListSocket.handleUpgrade(request, socket, head, ws => {
+      roomListSocket.emit('connection', ws, request);
+    });
+  } else if (Object.prototype.hasOwnProperty.call(rooms, pathname)) {
     rooms[pathname].handleUpgrade(request, socket, head, ws => {
       const client = ws;
-      client.nickName = nickname;
-      rooms[pathname].emit('connection', ws, request);
+      client.nickname = nickname;
+      rooms[pathname].emit('connection', client, request);
     });
   } else {
+    console.log(pathname, ' destroyed');
     socket.destroy();
   }
 });

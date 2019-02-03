@@ -8,4 +8,7 @@ export default {
   roomname(state) {
     return state.roomname;
   },
+  nickname(state) {
+    return state.nickname;
+  },
 };

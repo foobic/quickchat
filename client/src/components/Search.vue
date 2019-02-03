@@ -36,7 +36,7 @@ export default {
   },
   methods: {
     createRoom() {
-      this.$store.dispatch('createRoom');
+      this.$store.dispatch('createRoom', this.roomname);
       this.$router.push(`/room/${this.roomname}`);
     },
     isRoomExists() {

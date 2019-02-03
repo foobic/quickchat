@@ -6,12 +6,19 @@
         <button @click="close" class="btn btn-primary btn-xs noFocus">
           Close
         </button>
+        <!-- <router-link></router-link> -->
       </div>
     </div>
     <div class="roomWrapper d-flex container">
       <div class="msgBlock px-4">
         <div v-for="(msg, index) in messages" :key="index">
-          <span v-html="msg"></span>
+          <span v-if="msg.nickname === nickname">
+            <b>{{ msg.nickname }}</b
+            >: {{ msg.body }} <sub>{{ msg.time }}</sub>
+          </span>
+          <span v-else>
+            {{ msg.nickname }}: {{ msg.body }} <sub>{{ msg.time }}</sub>
+          </span>
         </div>
       </div>
     </div>
@@ -43,18 +50,19 @@
       </div>
     </div>
 
-    <prompt
+    <myprompt
       title="Submit your name"
       input-placeholder="Enter your name"
       info-msg="NickName cannot be empty. And should contain only latin or numeric
       characters."
       v-on:promptClosed="handleNickname"
       ref="namePrompt"
-    ></prompt>
+    ></myprompt>
   </div>
 </template>
 
 <script>
+import {mapActions, mapGetters} from 'vuex';
 import Prompt from '../components/Modal/Prompt.vue';
 
 export default {
@@ -62,23 +70,21 @@ export default {
   data() {
     return {
       msg: '',
+      // nickname: '',
     };
   },
   components: {
-    prompt: Prompt,
+    myprompt: Prompt,
   },
   computed: {
-    messages() {
-      return this.$store.getters.messages;
-    },
-    roomname() {
-      return this.$store.getters.roomname;
-    },
+    ...mapGetters(['messages', 'roomname', 'nickname']),
   },
 
   beforeRouteLeave(to, from, next) {
-    this.$store.dispatch('resetRoomname');
-    this.$store.dispatch('resetNickname');
+    this.$refs.namePrompt.hideModal();
+    this.resetRoomname();
+    this.resetNickname();
+    this.$store.dispatch('disconnectFromRoom');
     next();
   },
 
@@ -97,17 +103,27 @@ export default {
     this.$refs.msgInput.focus();
     this.$store.dispatch('setRoomname', this.$route.params.name);
   },
+
+  created() {
+    this.$store.dispatch('disconnectFromRoomlist');
+  },
   methods: {
+    ...mapActions([
+      'setNickname',
+      'connectToRoom',
+      'resetRoomname',
+      'resetNickname',
+    ]),
+    close() {
+      this.$router.push(`/`);
+    },
     handleNickname(name) {
-      this.$store.dispatch('setNickname', name);
+      this.connectToRoom({nickname: name});
     },
     send() {
       if (this.msg.length === 0) return;
       this.$store.dispatch('sendMessage', this.msg);
       this.msg = '';
-    },
-    close() {
-      this.$store.dispatch('close');
     },
   },
 };

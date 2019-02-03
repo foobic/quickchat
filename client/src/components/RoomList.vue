@@ -18,7 +18,13 @@ export default {
     return {};
   },
   mounted() {
-    this.$store.dispatch('getRooms');
+    // this.$store.dispatch('getRooms');
+  },
+  created() {
+    this.$store.dispatch('connectToRoomlist');
+    // setInterval(() => {
+    //   this.$store.dispatch('getRooms');
+    // }, 2000);
   },
   computed: {
     rooms() {
@@ -32,7 +38,9 @@ export default {
   methods: {
     connect(roomname, event) {
       if (event) event.preventDefault();
-      this.$store.dispatch('connect');
+      this.$router.push({name: 'room', params: {name: roomname}});
+
+      // this.$router.push(`/room/${roomname}`);
     },
   },
 };

@@ -25,7 +25,6 @@ export default {
     },
     hideModal() {
       this.$refs.myModalRef.hide();
-      this.$emit('alertClosed');
     },
   },
 };

@@ -1,8 +1,20 @@
 import Vue from 'vue';
 
 export default {
-  connect({commit}) {
-    commit('CONNECT');
+  initState({commit}) {
+    commit('INIT_STATE');
+  },
+  connectToRoomlist({commit}) {
+    commit('CONNECT_TO_ROOMLIST');
+  },
+  connectToRoom({commit}, data) {
+    commit('CONNECT_TO_ROOM', data);
+  },
+  disconnectFromRoom({commit}) {
+    commit('DISCONNECT_FROM_ROOM');
+  },
+  disconnectFromRoomlist({commit}) {
+    commit('DISCONNECT_FROM_ROOMLIST');
   },
   close({commit}) {
     commit('CLOSE');
@@ -29,9 +41,9 @@ export default {
       {headers: {'content-type': 'application/x-www-form-urlencoded'}},
     );
   },
-  getRooms({commit, state}) {
-    Vue.http.get(`http://${state.serverUrl}/rooms`).then(response => {
-      commit('REFRESH_ROOMS', response.body);
-    });
-  },
+  // getRooms({commit, state}) {
+  //   Vue.http.get(`http://${state.serverUrl}/rooms`).then(response => {
+  //     commit('REFRESH_ROOMS', response.body);
+  //   });
+  // },
 };

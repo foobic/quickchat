@@ -11,10 +11,12 @@ import './CustomDirectives';
 
 Vue.config.productionTip = false;
 Vue.use(VueResource);
-Vue.use(VueNativeSock, 'ws://localhost:80', {
-  connectManually: true,
-});
 Vue.use(BootstrapVue);
+
+Vue.use(VueNativeSock, 'ws://192.168.0.103', {
+  connectManually: true,
+  reconnection: true,
+});
 
 router.beforeEach((to, from, next) => {
   document.title = to.meta.title;
@@ -25,4 +27,7 @@ new Vue({
   router,
   store,
   render: h => h(App),
+  created() {
+    this.$store.dispatch('initState');
+  },
 }).$mount('#app');

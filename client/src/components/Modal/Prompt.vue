@@ -26,7 +26,7 @@
 
 <script>
 export default {
-  name: 'Alert',
+  name: 'Prompt',
   data() {
     return {
       name: '',
@@ -43,6 +43,9 @@ export default {
     },
     showModal() {
       this.$refs.modal.show();
+    },
+    hideModal() {
+      this.$refs.modal.hide();
     },
     handleOk(event) {
       event.preventDefault();
