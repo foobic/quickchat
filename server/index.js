@@ -4,61 +4,19 @@ const url = require('url');
 
 const rooms = {}; // '/roomname' : WS
 
-const {
-  receiveData,
-  getNicknames,
-  stringifyObjectKeys,
-  getCurrentTime,
-} = require('./helpers');
+const {receiveData, getNicknames, stringifyObjectKeys} = require('./helpers');
 const logger = require('./logger.js');
 const {roomListSocket} = require('./roomlist.js')(rooms);
 
 const notifyRoomListUpdated = () =>
   roomListSocket.broadcast(stringifyObjectKeys(rooms));
 
-const checkRoomIsAlive = () => {
-  const deletionList = [];
-  Object.keys(rooms).forEach(el => {
-    if (rooms[el].clients && rooms[el].clients.size === 0) {
-      deletionList.push(rooms[el].roomname);
-    }
-  });
-  deletionList.forEach(el => {
-    logger({text: `Room ${el} deleted.`});
-    delete rooms[el];
-  });
-  if (deletionList.length > 0) {
-    notifyRoomListUpdated();
-  }
-};
+  
+const {checkRoomIsAlive, onRoomConnection} = require('./room.js')(
+  rooms,
+  notifyRoomListUpdated,
+)
 
-const onRoomConnection = wss => ws => {
-  ws.on('message', message => {
-    wss.clients.forEach(client => {
-      if (client !== ws && client.readyState === WebSocket.OPEN) {
-        const msg = {
-          nickname: ws.nickname,
-          body: message,
-          time: getCurrentTime(),
-        };
-        client.send(JSON.stringify(msg));
-      }
-    });
-  });
-
-  ws.on('close', () => {
-    if (wss.clients && wss.clients.size === 0) {
-      delete rooms[wss.roomname];
-      logger({text: `Room ${wss.roomname} deleted.`});
-      notifyRoomListUpdated();
-    }
-  });
-};
-
-// every 1m cleanup room list if needed
-setTimeout(() => {
-  checkRoomIsAlive();
-}, 60000);
 
 const server = http.createServer((req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -104,5 +62,10 @@ server.on('upgrade', (request, socket, head) => {
     socket.destroy();
   }
 });
+
+// every 1m cleanup room list if needed
+setTimeout(() => {
+  checkRoomIsAlive();
+}, 60000);
 
 server.listen(3000);
