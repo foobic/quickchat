@@ -1,15 +1,15 @@
 <template>
   <div id="room">
-    <div class="roomWrapper d-flex container">
+    <div class="roomWrapper d-flex container" v-if="roomExists">
       <div class="infoBlock px-4">
         #{{ roomname }}
-        <button @click="close" class="btn btn-primary btn-xs noFocus">
-          Close
+        <button @click="gohome" class="btn btn-primary btn-xs noFocus">
+          Go Home
         </button>
         <!-- <router-link></router-link> -->
       </div>
     </div>
-    <div class="roomWrapper d-flex container">
+    <div class="roomWrapper d-flex container" v-if="roomExists">
       <div class="msgBlock px-4">
         <div v-for="(msg, index) in messages" :key="index">
           <span v-if="msg.nickname === nickname">
@@ -23,7 +23,7 @@
       </div>
     </div>
     <br />
-    <div class="roomWrapper d-flex container">
+    <div class="roomWrapper d-flex container" v-if="roomExists">
       <div class="msgInput w-100">
         <div class="form-group col-12">
           <div class="input-group mb-3">
@@ -56,35 +56,53 @@
       info-msg="NickName cannot be empty. And should contain only latin or numeric
       characters."
       v-on:promptClosed="handleNickname"
+      nocloseonesc
+      nocloseonbackdrop
+      hideheaderclose
       ref="namePrompt"
     ></myprompt>
+    <myalert
+      type="danger"
+      ref="alertConnectionClosed"
+      btnText="Reload"
+      :cb="reload"
+      >Connection closed. Probably, your nickname already taken in this room.
+    </myalert>
+    <myalert
+      type="danger"
+      ref="alertRoomDoesntExist"
+      btnText="Go Home"
+      :cb="gohome"
+      >This room doesn`t exist. Go Home for create room.
+    </myalert>
   </div>
 </template>
 
 <script>
 import {mapActions, mapGetters} from 'vuex';
+import Vue from 'vue';
 import Prompt from '../components/Modal/Prompt.vue';
+import Alert from '../components/Modal/Alert.vue';
 
 export default {
   name: 'Room',
   data() {
     return {
       msg: '',
-      // nickname: '',
+      roomExists: false,
     };
   },
   components: {
     myprompt: Prompt,
+    myalert: Alert,
   },
   computed: {
-    ...mapGetters(['messages', 'roomname', 'nickname']),
+    ...mapGetters(['messages', 'roomname', 'nickname', 'socket']),
   },
 
   beforeRouteLeave(to, from, next) {
     this.$refs.namePrompt.hideModal();
-    this.resetRoomname();
-    this.resetNickname();
-    this.$store.dispatch('disconnectFromRoom');
+    this.disconnectFromRoom();
     next();
   },
 
@@ -99,30 +117,54 @@ export default {
   },
 
   mounted() {
-    this.$refs.namePrompt.showModal();
-    this.$refs.msgInput.focus();
-    this.$store.dispatch('setRoomname', this.$route.params.name);
+    this.setRoomname(this.$route.params.name);
+    Vue.http
+      .get(`http://${this.$store.getters.serverUrl}/getRoomList`)
+      .then(res => {
+        const roomList = res.body;
+        if (roomList.includes(`/${this.$store.getters.roomname}`) === false) {
+          this.resetRoomname();
+          this.$refs.alertRoomDoesntExist.showModal();
+        } else {
+          this.roomExists = true;
+          this.$refs.namePrompt.showModal();
+        }
+      });
   },
 
-  created() {
-    this.$store.dispatch('disconnectFromRoomlist');
-  },
   methods: {
     ...mapActions([
-      'setNickname',
       'connectToRoom',
+      'sendMessage',
+      'disconnectFromRoom',
+      'setRoomname',
       'resetRoomname',
-      'resetNickname',
     ]),
-    close() {
-      this.$router.push(`/`);
+    reload() {
+      this.$router.go(this.$router.currentRoute);
+    },
+    gohome() {
+      this.$router.push('/');
     },
     handleNickname(name) {
       this.connectToRoom({nickname: name});
+      const timer = setInterval(() => {
+        if (this.socket.socket.readyState !== 0) {
+          clearInterval(timer);
+          if (
+            this.socket.socket.readyState === 2 ||
+            this.socket.socket.readyState === 3
+          ) {
+            this.$refs.alertConnectionClosed.showModal();
+          }
+        }
+      }, 250);
+
+      this.$refs.msgInput.focus();
     },
     send() {
       if (this.msg.length === 0) return;
-      this.$store.dispatch('sendMessage', this.msg);
+      this.sendMessage(this.msg);
       this.msg = '';
     },
   },

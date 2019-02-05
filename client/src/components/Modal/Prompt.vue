@@ -6,6 +6,9 @@
       :title="title"
       @ok="handleOk"
       @shown="clearName"
+      :no-close-on-esc="nocloseonesc"
+      :no-close-on-backdrop="nocloseonbackdrop"
+      :hide-header-close="hideheaderclose"
     >
       <div class="info" v-if="infoMsg">
         <b-btn class variant="`outline-info`">{{ infoMsg }}</b-btn>
@@ -36,6 +39,9 @@ export default {
     title: String,
     inputPlaceholder: String,
     infoMsg: String,
+    nocloseonesc: Boolean,
+    nocloseonbackdrop: Boolean,
+    hideheaderclose: Boolean,
   },
   methods: {
     clearName() {

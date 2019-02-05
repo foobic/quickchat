@@ -10,6 +10,12 @@ const newSocket = ({onopen, onerror, onmessage}) => {
         this.socket = new WebSocket(url);
         this.socket.onopen = onopen;
         this.socket.onerror = onerror;
+        // this.socket.onerror = e => {
+        //   console.log(e);
+        // };
+        this.socket.onclose = msg => {
+          console.log(msg);
+        };
         this.socket.onmessage = onmessage;
       },
       send(msg) {

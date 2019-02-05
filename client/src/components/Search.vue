@@ -16,36 +16,60 @@
         <div class="input-group-append">
           <button
             class="btn btn-primary btn-lg noFocus createBtn"
-            v-on:click="createRoom"
+            v-on:click="createRoomHandler"
           >
-            Csdfreate Room
+            Create
           </button>
         </div>
       </div>
     </div>
+
+    <myalert type="danger" ref="alertEmptyRoomname" btnText="Close">
+      Roomname cannot be empty. And should contain only alphabetic and numeric
+      characters.
+    </myalert>
+    <myalert type="danger" ref="alertRoomAlreadyExists" btnText="Close"
+      >Room with this name already exists</myalert
+    >
   </div>
 </template>
 
 <script>
+import {mapActions, mapGetters} from 'vuex';
+import Alert from './Modal/Alert.vue';
+
 export default {
   name: 'Search',
-  data() {
-    return {
-      roomname: '',
-    };
+  components: {
+    myalert: Alert,
+  },
+  computed: {
+    ...mapGetters(['rooms']),
+    roomname: {
+      set(value) {
+        this.$store.dispatch('setRoomname', value);
+      },
+      get() {
+        return this.$store.getters.roomname;
+      },
+    },
   },
   methods: {
-    createRoom() {
-      this.$store.dispatch('createRoom', this.roomname);
+    ...mapActions(['createRoom']),
+    createRoomHandler() {
+      if (this.isRoomExists()) return;
+      this.createRoom(this.roomname);
       this.$router.push(`/room/${this.roomname}`);
     },
     isRoomExists() {
-      this.$store.dispatch('getRooms');
-      if (this.rooms.includes(this.roomName)) {
-        this.$refs.alertRoomAlreadyExists.showModal();
-        return true;
-      }
-      return false;
+      let result = false;
+      this.rooms.forEach(el => {
+        if (el === this.roomname) {
+          result = true;
+          this.$refs.alertRoomAlreadyExists.showModal();
+        }
+      });
+      return result;
     },
   },
 };

@@ -7,13 +7,6 @@
         <roomList></roomList>
       </div>
     </div>
-    <myalert type="danger" ref="alertEmptyRoomname">
-      Roomname cannot be empty. And should contain only alphabetic and numeric
-      characters.
-    </myalert>
-    <myalert type="danger" ref="alertRoomAlreadyExists"
-      >Room with this name already exists</myalert
-    >
   </div>
 </template>
 
@@ -21,22 +14,14 @@
 import RoomList from '../components/RoomList.vue';
 import Search from '../components/Search.vue';
 import Logo from '../components/Logo.vue';
-import Alert from '../components/Modal/Alert.vue';
 
 export default {
   name: 'Home',
   components: {
     roomList: RoomList,
     search: Search,
-    myalert: Alert,
     logo: Logo,
   },
-  data() {
-    return {};
-  },
-  // created() {
-  //   this.$store.dispatch('connectToRoomlist');
-  // },
 };
 </script>
 

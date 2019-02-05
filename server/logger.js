@@ -1,3 +1,3 @@
 module.exports = function(msg) {
-  console.info(msg);
+  console.info(msg.text);
 };

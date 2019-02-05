@@ -6,14 +6,13 @@ export default {
     // init room list socket
     const roomListSocketParams = {
       onopen() {
-        console.log('opened');
+        console.log('RoomListSocket opened');
       },
       onerror(e) {
-        console.log('Erorr', e);
+        console.log('RoomListSocket error', e);
       },
       onmessage: e => {
         const rooms = JSON.parse(e.data);
-        // console.log(rooms);
         state.rooms = rooms.map(el => el.slice(1, el.length));
       },
     };
@@ -21,53 +20,39 @@ export default {
     // init socket for chatting
     const socketParams = {
       onopen() {
-        console.log('opened');
+        console.log('Socket opened');
       },
       onerror(e) {
-        console.log('Erorr', e);
+        console.log('Socket error', e);
       },
       onmessage: e => {
-        // console.log(e);
         state.messages.push(JSON.parse(e.data));
-        // state.messages.push(JSON.parse(msg));
       },
     };
     state.socket = newSocket(socketParams);
   },
   CONNECT_TO_ROOMLIST(state) {
-    // state.socket = newSocket(data => {
-    //   console.log(data);
-    //   state.messages.push(JSON.parse(data));
-    // });
-    // state.socket.connect(`ws://${state.serverUrl}/roomList`)
-    // state.messages = [];
-    // state.socket.close();
     state.roomListSocket.connect(`ws://${state.serverUrl}/roomList`);
-    // console.log(state.socket);
-    // console.log(state.roomListSocket);
-    // console.log(state.roomListSocket === state.socket);
   },
   CONNECT_TO_ROOM(state, data) {
     if (data && data.nickname) state.nickname = data.nickname;
     if (data && data.roomname) state.roomname = data.roomname;
-    // state.roomListSocket.close();
     state.socket.connect(
       `ws://${state.serverUrl}/${state.roomname}?nickname=${state.nickname}`,
     );
-    // state.socket = VueSocket(
-    //   `ws://${state.serverUrl}/${state.roomname}?nickname=${state.nickname}`,
-    //   msg => {
-    //     console.log(msg);
-    //     state.messages.push(JSON.parse(msg));
-    //   },
-    // );
   },
   DISCONNECT_FROM_ROOMLIST(state) {
-    state.roomListSocket.close();
+    if (state.roomListSocket !== null && state.roomListSocket.socket !== null) {
+      state.roomListSocket.close();
+    }
   },
   DISCONNECT_FROM_ROOM(state) {
-    state.socket.close();
-    state.messages = [];
+    if (state.socket !== null && state.socket.socket !== null) {
+      state.nickname = '';
+      state.roomname = '';
+      state.socket.close();
+      state.messages = [];
+    }
   },
   SEND_MESSAGE(state, msgBody) {
     // console.log(state);

@@ -29,5 +29,10 @@ new Vue({
   render: h => h(App),
   created() {
     this.$store.dispatch('initState');
+    window.addEventListener('beforeunload', e => {
+      this.$store.dispatch('disconnectFromRoom');
+      this.$store.dispatch('disconnectFromRoomlist');
+      return true;
+    });
   },
 }).$mount('#app');

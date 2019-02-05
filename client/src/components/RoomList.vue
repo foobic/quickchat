@@ -1,10 +1,10 @@
 <template>
   <div class="d-flex justify-content-center">
     <div class="rooms col-12">
-      <div v-if="rooms.length === 0">
+      <div v-if="matchedRooms.length === 0">
         <span>Nothing found.</span>
       </div>
-      <div v-for="(roomname, index) in rooms" v-bind:key="index">
+      <div v-for="(roomname, index) in matchedRooms" v-bind:key="index">
         <a href v-on:click.prevent="connect(roomname)">{{ roomname }}</a>
       </div>
     </div>
@@ -12,35 +12,31 @@
 </template>
 
 <script>
+import {mapActions, mapGetters} from 'vuex';
+
 export default {
   name: 'RoomList',
-  data() {
-    return {};
-  },
-  mounted() {
-    // this.$store.dispatch('getRooms');
-  },
   created() {
-    this.$store.dispatch('connectToRoomlist');
-    // setInterval(() => {
-    //   this.$store.dispatch('getRooms');
-    // }, 2000);
+    this.connectToRoomlist();
   },
   computed: {
-    rooms() {
-      const regex = new RegExp(this.$store.getters.roomname, 'i');
-      const matchedRooms = this.$store.getters.rooms.filter(el =>
+    ...mapGetters(['roomname', 'rooms']),
+    matchedRooms() {
+      const regex = new RegExp(this.roomname, 'i');
+      const matchedRooms = this.rooms.filter(el =>
         el ? el.match(regex) : false,
       );
       return matchedRooms;
     },
   },
+  destroyed() {
+    this.disconnectFromRoomlist();
+  },
   methods: {
+    ...mapActions(['connectToRoomlist', 'disconnectFromRoomlist']),
     connect(roomname, event) {
       if (event) event.preventDefault();
       this.$router.push({name: 'room', params: {name: roomname}});
-
-      // this.$router.push(`/room/${roomname}`);
     },
   },
 };

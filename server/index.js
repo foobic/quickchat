@@ -1,11 +1,20 @@
 const http = require('http');
 const WebSocket = require('ws');
 const url = require('url');
+const {receiveData} = require('./helpers');
+const logger = require('./logger');
 
 const rooms = {};
 const roomListSocket = new WebSocket.Server({noServer: true});
-const {receiveData} = require('./helpers');
-const logger = require('./logger');
+let msg = null;
+
+function getNicknames(set) {
+  const list = [];
+  set.forEach(el => {
+    list.push(el.nickname);
+  });
+  return list;
+}
 
 roomListSocket.broadcast = function broadcast(data) {
   roomListSocket.clients.forEach(client => {
@@ -16,22 +25,13 @@ roomListSocket.broadcast = function broadcast(data) {
 };
 
 roomListSocket.on('connection', ws => {
+  ws.send(JSON.stringify(Object.keys(rooms)));
   ws.on('close', () => {
-    console.log('Roomlist connection closed.');
-    // roomListSocket.clients
-    console.log(roomListSocket.clients.size);
+    logger({text: 'Roomlist connection closed.'});
   });
-  // console.log();
-  // ws.send(JSON.stringify(Object.keys(rooms)));
 });
 
-let msg = null;
-
 const onConnection = wss => ws => {
-  ws.on('open', param => {
-    console.log('opened');
-  });
-
   ws.on('message', message => {
     wss.clients.forEach(client => {
       if (client !== ws && client.readyState === WebSocket.OPEN) {
@@ -49,9 +49,11 @@ const onConnection = wss => ws => {
     });
   });
 
+  console.log(getNicknames(wss.clients));
+
   ws.on('close', () => {
     if (wss.clients && wss.clients.size === 0) {
-      logger({msg: `Room ${wss.roomName} deleted.`});
+      logger({text: `Room ${wss.roomName} deleted.`});
       delete rooms[wss.roomName];
       roomListSocket.broadcast(Object.keys(rooms));
     }
@@ -74,6 +76,8 @@ const server = http.createServer((req, res) => {
       roomListSocket.broadcast(Object.keys(rooms));
       res.end(`'${roomName}' room successfully created.`);
     });
+  } else if (req.method === 'GET' && urlParsed.pathname === '/getRoomList') {
+    res.end(JSON.stringify(Object.keys(rooms)));
   }
 });
 
@@ -89,12 +93,21 @@ server.on('upgrade', (request, socket, head) => {
     });
   } else if (Object.prototype.hasOwnProperty.call(rooms, pathname)) {
     rooms[pathname].handleUpgrade(request, socket, head, ws => {
+      const nicknameList = getNicknames(rooms[pathname].clients);
+      if (nicknameList.includes(nickname)) {
+        return socket.destroy();
+      }
+
       const client = ws;
       client.nickname = nickname;
+      // rooms[pathname].clients.map(el => {
+      //   console.log(el.nickname);
+      //   return el;
+      // });
+      console.log();
       rooms[pathname].emit('connection', client, request);
     });
   } else {
-    console.log(pathname, ' destroyed');
     socket.destroy();
   }
 });
