@@ -8,6 +8,8 @@ const {receiveData, getNicknames, stringifyObjectKeys} = require('./helpers');
 const logger = require('./logger.js');
 const {roomListSocket} = require('./roomlist.js')(rooms);
 
+const config = require('./config.js');
+
 const notifyRoomListUpdated = () =>
   roomListSocket.broadcast(stringifyObjectKeys(rooms));
 
@@ -68,4 +70,4 @@ setTimeout(() => {
   checkRoomIsAlive();
 }, 60000);
 
-server.listen(3000);
+server.listen(config.serverPort);
