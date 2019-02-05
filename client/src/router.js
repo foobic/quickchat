@@ -22,9 +22,6 @@ export default new Router({
       path: '/room/:name',
       name: 'room',
       component: Room,
-      meta: {
-        title: 'Room',
-      },
     },
     {
       path: '*',

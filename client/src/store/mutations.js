@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint no-param-reassign: 0 */
 import newSocket from '../socket';
 
@@ -10,6 +11,9 @@ export default {
       },
       onerror(e) {
         console.log('RoomListSocket error', e);
+      },
+      onclose(msg) {
+        console.log(msg);
       },
       onmessage: e => {
         const rooms = JSON.parse(e.data);
@@ -24,6 +28,9 @@ export default {
       },
       onerror(e) {
         console.log('Socket error', e);
+      },
+      onclose(msg) {
+        console.log(msg);
       },
       onmessage: e => {
         state.messages.push(JSON.parse(e.data));
@@ -55,7 +62,6 @@ export default {
     }
   },
   SEND_MESSAGE(state, msgBody) {
-    // console.log(state);
     state.socket.send(msgBody);
     state.messages.push({
       nickname: state.nickname,
@@ -67,10 +73,6 @@ export default {
       }),
     });
   },
-  // REFRESH_ROOMS(state, rooms) {
-  //   rooms = rooms.map(el => el.slice(1, el.length)); // remove slash from roomname ex: '/123' => '123'
-  //   state.rooms = rooms;
-  // },
   SET_ROOMNAME(state, newRoomname) {
     state.roomname = newRoomname;
   },

@@ -41,9 +41,4 @@ export default {
       {headers: {'content-type': 'application/x-www-form-urlencoded'}},
     );
   },
-  // getRooms({commit, state}) {
-  //   Vue.http.get(`http://${state.serverUrl}/rooms`).then(response => {
-  //     commit('REFRESH_ROOMS', response.body);
-  //   });
-  // },
 };

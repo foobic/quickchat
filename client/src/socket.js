@@ -1,6 +1,6 @@
 import Vue from 'vue';
 
-const newSocket = ({onopen, onerror, onmessage}) => {
+const newSocket = ({onopen, onerror, onclose, onmessage}) => {
   const socket = new Vue({
     data() {
       return {socket: null};
@@ -10,12 +10,7 @@ const newSocket = ({onopen, onerror, onmessage}) => {
         this.socket = new WebSocket(url);
         this.socket.onopen = onopen;
         this.socket.onerror = onerror;
-        // this.socket.onerror = e => {
-        //   console.log(e);
-        // };
-        this.socket.onclose = msg => {
-          console.log(msg);
-        };
+        this.socket.onclose = onclose;
         this.socket.onmessage = onmessage;
       },
       send(msg) {

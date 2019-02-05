@@ -6,7 +6,6 @@
         <button @click="gohome" class="btn btn-primary btn-xs noFocus">
           Go Home
         </button>
-        <!-- <router-link></router-link> -->
       </div>
     </div>
     <div class="roomWrapper d-flex container" v-if="roomExists">
@@ -35,7 +34,7 @@
               class="form-control form-control-lg createInput noFocus"
               v-model="msg"
               @keyup.enter="send"
-              ref="msgInput"
+              v-focus
             />
             <div class="input-group-append">
               <button
@@ -118,6 +117,7 @@ export default {
 
   mounted() {
     this.setRoomname(this.$route.params.name);
+    document.title = `Room #${this.$route.params.name}`;
     Vue.http
       .get(`http://${this.$store.getters.serverUrl}/getRoomList`)
       .then(res => {
@@ -126,7 +126,6 @@ export default {
           this.resetRoomname();
           this.$refs.alertRoomDoesntExist.showModal();
         } else {
-          this.roomExists = true;
           this.$refs.namePrompt.showModal();
         }
       });
@@ -157,10 +156,11 @@ export default {
           ) {
             this.$refs.alertConnectionClosed.showModal();
           }
+          if (this.socket.socket.readyState === 1) {
+            this.roomExists = true;
+          }
         }
       }, 250);
-
-      this.$refs.msgInput.focus();
     },
     send() {
       if (this.msg.length === 0) return;

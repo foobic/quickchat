@@ -18,18 +18,13 @@ Vue.use(VueNativeSock, 'ws://192.168.0.103', {
   reconnection: true,
 });
 
-router.beforeEach((to, from, next) => {
-  document.title = to.meta.title;
-  next();
-});
-
 new Vue({
   router,
   store,
   render: h => h(App),
   created() {
     this.$store.dispatch('initState');
-    window.addEventListener('beforeunload', e => {
+    window.addEventListener('beforeunload', () => {
       this.$store.dispatch('disconnectFromRoom');
       this.$store.dispatch('disconnectFromRoomlist');
       return true;
