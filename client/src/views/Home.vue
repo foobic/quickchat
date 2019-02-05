@@ -22,6 +22,9 @@ export default {
     search: Search,
     logo: Logo,
   },
+  created() {
+    document.title = 'QuickChat';
+  },
 };
 </script>
 
