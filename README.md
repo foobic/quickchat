@@ -1,28 +1,39 @@
-# quickchat
+
+# Quickchat
 
 > Multi-room WebSocket-chat.
-
-## Requirements
-- [pm2](https://github.com/Unitech/pm2) globally
 
 ## Installation
 
 ```sh
-npm install --prefix client/
-npm install --prefix server/
+npm install && 
+npx lerna bootstrap
 ```
 
 ## Usage
 
-```sh
-pm2 start && pm2 log 
+Start application on `localhost:8080`
+```sh 
+npx pm2 start 
 ```
-After, check `localhost:8080`
 
-## Custom configuraion
-Client configuration stores in `client/env`. Server configuration stores in `server/config.js`. Make sure, that `VUE_APP_SERVER_PORT` variable in `client/env` and `config.serverPort` in `server/config.js` are equal, it is important.
+Stop application
+```sh 
+npx pm2 delete all 
+```
+
+If you want to see logs type following
+```sh 
+npx pm2 log
+```
+
+## Custom configuration
+Client configuration stores in `client/env`. Server configuration stores in `server/src/config.js`. Make sure, that `VUE_APP_SERVER_PORT` variable in `client/env` and `config.serverPort` in `server/src/config.js` are equal, it is important.
 
 ## License
-[Favicon link](https://www.iconfinder.com/icons/1063093/chat_media_network_on_social_icon)
 
-MIT © [Alex Gorbov]
+This project is licensed under the MIT License - see the  [LICENSE.md](https://github.com/jaspy/phostore/blob/master/LICENSE.md)  file for details
+
+## Acknowledgments
+
+[Favicon link](https://www.iconfinder.com/icons/1063093/chat_media_network_on_social_icon)
