@@ -1,10 +1,10 @@
 <template>
   <div>
     <b-modal
-      id="modalPrevent"
-      ref="modal"
+      id="mymodal"
+      ref="mymodal"
       :title="title"
-      @ok="handleOk"
+      @ok="handleSubmit"
       @shown="clearName"
       :no-close-on-esc="nocloseonesc"
       :no-close-on-backdrop="nocloseonbackdrop"
@@ -13,7 +13,7 @@
       <div class="info" v-if="infoMsg">
         <b-btn class variant="`outline-info`">{{ infoMsg }}</b-btn>
       </div>
-      <form @submit.stop.prevent="handleSubmit">
+      <form @submit.prevent="handleSubmit">
         <b-form-input
           v-focus
           v-restrict.alpha.number
@@ -48,17 +48,22 @@ export default {
       this.name = '';
     },
     showModal() {
-      this.$refs.modal.show();
+      this.$refs.mymodal.show();
     },
     hideModal() {
-      this.$refs.modal.hide();
+      this.$refs.mymodal.hide();
     },
-    handleOk(event) {
-      event.preventDefault();
-      this.handleSubmit();
+    handleOk() {
+      // event.preventDefault();
+      // console.log(this.handleSubmit.toString());
+      // console.log(this.hideModal.toString());
+      // this.$refs.mymodal.hide();
+      // this.handleSubmit();
     },
     handleSubmit() {
-      this.$refs.modal.hide();
+      console.log('asdf');
+      // this.hideModal();
+      this.$refs.mymodal.hide();
       this.$emit('promptClosed', this.name);
       this.clearName();
     },
