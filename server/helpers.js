@@ -10,14 +10,6 @@ const receiveData = (req, cb) => {
     });
 };
 
-const getNicknames = set => {
-  const list = [];
-  set.forEach(el => {
-    list.push(el.nickname);
-  });
-  return list;
-};
-
 const stringifyObjectKeys = object => JSON.stringify(Object.keys(object));
 
 const getCurrentTime = () =>
@@ -29,7 +21,6 @@ const getCurrentTime = () =>
 
 module.exports = {
   receiveData,
-  getNicknames,
   stringifyObjectKeys,
   getCurrentTime,
 };

@@ -45,7 +45,9 @@ export default {
     if (data && data.nickname) state.nickname = data.nickname;
     if (data && data.roomname) state.roomname = data.roomname;
     state.socket.connect(
-      `ws://${state.serverUrl}/${state.roomname}?nickname=${state.nickname}`,
+      `ws://${state.serverUrl}/room/${state.roomname}?nickname=${
+        state.nickname
+      }`,
     );
   },
   DISCONNECT_FROM_ROOMLIST(state) {

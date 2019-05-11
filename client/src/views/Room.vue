@@ -122,7 +122,7 @@ export default {
       .get(`http://${this.$store.getters.serverUrl}/getRoomList`)
       .then(res => {
         const roomList = res.body;
-        if (roomList.includes(`/${this.$store.getters.roomname}`) === false) {
+        if (roomList.includes(`${this.$store.getters.roomname}`) === false) {
           this.resetRoomname();
           this.$refs.alertRoomDoesntExist.showModal();
         } else {

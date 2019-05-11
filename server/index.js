@@ -1,65 +1,39 @@
 const http = require('http');
-const WebSocket = require('ws');
 const url = require('url');
 
-const rooms = {}; // '/roomname' : WS
-
-const {receiveData, getNicknames, stringifyObjectKeys} = require('./helpers');
-const logger = require('./logger.js');
-const {roomListSocket} = require('./roomlist.js')(rooms);
-
+const {receiveData, stringifyObjectKeys} = require('./helpers');
 const config = require('./config.js');
-
-const notifyRoomListUpdated = () =>
-  roomListSocket.broadcast(stringifyObjectKeys(rooms));
-
-  
-const {checkRoomIsAlive, onRoomConnection} = require('./room.js')(
-  rooms,
-  notifyRoomListUpdated,
-)
-
+const Room = require('./Room');
+const RoomList = require('./RoomList');
 
 const server = http.createServer((req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   const urlParsed = url.parse(req.url);
   if (req.method === 'POST' && urlParsed.pathname === '/create') {
+    // create Room
     receiveData(req, body => {
-      const roomname = `/${body.name}`;
-      const wss = new WebSocket.Server({noServer: true});
-      wss.roomname = roomname;
-      rooms[roomname] = wss;
-      wss.on('connection', onRoomConnection(wss));
-      notifyRoomListUpdated();
-      logger({text: `'${roomname}' room successfully created.`});
+      const roomname = `${body.name}`;
+      const room = new Room(roomname, RoomList);
+      RoomList.addOne(room);
       res.end(`'${roomname}' room successfully created.`);
     });
   } else if (req.method === 'GET' && urlParsed.pathname === '/getRoomList') {
-    res.end(stringifyObjectKeys(rooms));
+    res.end(stringifyObjectKeys(RoomList.rooms));
   }
 });
 
-server.on('upgrade', (request, socket, head) => {
-  const parsedUrl = url.parse(request.url);
-  const {pathname} = parsedUrl;
+server.on('upgrade', (req, socket, head) => {
+  const parsedUrl = url.parse(req.url);
+  const pathname = parsedUrl.pathname.split('/');
 
-  if (pathname === '/roomList') {
-    roomListSocket.handleUpgrade(request, socket, head, ws => {
-      roomListSocket.emit('connection', ws, request);
-    });
-  } else if (Object.prototype.hasOwnProperty.call(rooms, pathname)) {
-    rooms[pathname].handleUpgrade(request, socket, head, ws => {
-      const nickname =
-        parsedUrl && parsedUrl.query ? parsedUrl.query.split('=')[1] : null;
-      const nicknameList = getNicknames(rooms[pathname].clients);
-      if (nicknameList.includes(nickname)) {
-        // if this nickname already taken
-        return socket.destroy();
-      }
-      const client = ws;
-      client.nickname = nickname;
-      rooms[pathname].emit('connection', client, request);
-    });
+  const connectTo = pathname[1];
+  const roomname = pathname[2];
+
+  if (connectTo === 'roomList') {
+    RoomList.handleUpgradeRequest(req, socket, head);
+  } else if (connectTo === 'room' && RoomList.isRoomExists(roomname)) {
+    const room = RoomList.rooms[roomname];
+    room.handleUpgradeRequest(req, socket, head, parsedUrl);
   } else {
     socket.destroy();
   }
@@ -67,7 +41,7 @@ server.on('upgrade', (request, socket, head) => {
 
 // every 1m cleanup room list if needed
 setTimeout(() => {
-  checkRoomIsAlive();
+  RoomList.deleteEmptyRooms();
 }, 60000);
 
 server.listen(config.serverPort);
