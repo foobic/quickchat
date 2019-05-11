@@ -53,16 +53,7 @@ export default {
     hideModal() {
       this.$refs.mymodal.hide();
     },
-    handleOk() {
-      // event.preventDefault();
-      // console.log(this.handleSubmit.toString());
-      // console.log(this.hideModal.toString());
-      // this.$refs.mymodal.hide();
-      // this.handleSubmit();
-    },
     handleSubmit() {
-      console.log('asdf');
-      // this.hideModal();
       this.$refs.mymodal.hide();
       this.$emit('promptClosed', this.name);
       this.clearName();
