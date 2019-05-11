@@ -13,6 +13,8 @@ module.exports = {
       exec_interpreter: 'node',
       ignore_watch: ['node_modules'],
       autorestart: true,
+      watch: ['server'],
+      usePolling: true,
     },
   ],
 };
