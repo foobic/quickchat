@@ -16,8 +16,7 @@ export default {
         console.log(msg);
       },
       onmessage: e => {
-        const rooms = JSON.parse(e.data);
-        state.rooms = rooms.map(el => el.slice(1, el.length));
+        state.rooms = JSON.parse(e.data);
       },
     };
     state.roomListSocket = newSocket(roomListSocketParams);

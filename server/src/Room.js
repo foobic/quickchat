@@ -32,7 +32,7 @@ class Room {
           text: `${currentClient.nickname} disconnected from ${this.name}`,
         });
         // if room is empty, remove it from RoomList
-        if (this.isRoomEmpty) RoomList.removeOne(this);
+        if (this.isRoomEmpty()) RoomList.removeOne(this);
       });
     });
   }
